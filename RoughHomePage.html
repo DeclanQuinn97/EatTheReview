@@ -20,6 +20,85 @@
     zoom: 13,
     mapTypeId: 'roadmap'
   });
+  var infowindow = new google.maps.InfoWindow();
+  
+  
+  
+  // to show users current location
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function (p) {
+         var LatLng = new google.maps.LatLng(p.coords.latitude, p.coords.longitude);
+        var mapOptions = {
+            center: LatLng,
+            zoom: 13,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+         map = new google.maps.Map(document.getElementById("map"), mapOptions);
+        var marker = new google.maps.Marker({
+            position: LatLng,
+            map: map,
+            title: "<div style = 'height:60px;width:200px'><b>Your location:</b><br />Latitude: " + p.coords.latitude + "<br />Longitude: " + p.coords.longitude
+        });
+        google.maps.event.addListener(marker, "click", function (e) {
+             var infoWindow = new google.maps.InfoWindow();
+            infoWindow.setContent(marker.title);
+            infoWindow.open(map, marker);
+        });
+		
+		
+		
+		// to mark all nearby restaurants
+	var service = new google.maps.places.PlacesService(map);
+            service.nearbySearch({
+                location : LatLng,
+                radius : 5000,
+				type : [ 'restaurant' ]
+            }, callback);
+			function callback(results, status) {
+				if (status === google.maps.places.PlacesServiceStatus.OK) {
+					for (var i = 0; i < results.length; i++) {
+						createMarker(results[i]);
+                }
+            }
+        }
+		
+		function createMarker(place) {
+            var placeLoc = place.geometry.location;
+            var marker = new google.maps.Marker({
+				map : map,
+                position : place.geometry.location
+            });
+            google.maps.event.addListener(marker, 'click', function() {
+                infowindow.setContent(place.name);
+                infowindow.open(map, this);
+            });
+        }
+		
+
+		
+		
+    });
+	
+	
+	
+	
+
+	
+	
+	
+	
+} else {
+    alert('Geo Location feature is not supported in this browser.');
+}
+
+
+
+
+
+  
+  
+  
+  
   // Create the search box and link it to the UI element.
   var input = document.getElementById('pac-input');
    var searchBox = new google.maps.places.SearchBox(input); 
@@ -77,7 +156,6 @@
 #map {
   height: 100%;
 }
-
 html, body {
   height: 100%;
   margin: 0;
@@ -107,7 +185,6 @@ html, body {
   background-color: #fff;
   font-family: Roboto;
 }
-
 .pac-controls {
   display: inline-block;
   padding: 5px 11px;
@@ -148,17 +225,13 @@ input[type=text] {
     transition: width 0.4s ease-in-out;
 	position:relative;  
     left:46%;
-
 }
-
 input[type=text]:focus {
     width: 25%;
 }
 header{
 background-color: #A31621;
 }
-
-
 </style>
 </body>
 </html>
